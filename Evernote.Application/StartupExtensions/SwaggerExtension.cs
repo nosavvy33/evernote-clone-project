@@ -1,0 +1,104 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
+using System.Reflection;
+
+namespace Evernote.Application.StartupExtensions
+{
+    public static class SwaggerExtension
+    {
+        public static IServiceCollection AddCustomizedSwagger(this IServiceCollection services, IWebHostEnvironment env)//, string xmlFilePath)
+        {
+            if (env.IsDevelopment())
+            {
+                services.AddSwaggerGenNewtonsoftSupport();
+                services.AddSwaggerGen(options =>
+                {
+                    var groupName = "v1";
+                    options.SwaggerDoc(groupName, new OpenApiInfo
+                    {
+                        Title = $"Evernote {groupName}",
+                        Version = groupName,
+                        Description = "Evernote APIzxczxc",
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Evernote API",
+                            Email = string.Empty,
+                        }
+                    });
+
+                    //TODO : add comments with FluentValidation
+                    //Class library does not containt bin/ folder so code below throws FileNotFound
+                    //var fileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    //var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
+                    //options.IncludeXmlComments(xmlFilePath);
+                });
+                //services.AddSwaggerGen(c =>
+                //{
+                //    c.SwaggerDoc("v1", new OpenApiInfo
+                //    {
+                //        Version = "v1",
+                //        Title = "ASPNET Core DDD Project",
+                //        Description = "",
+                //        Contact = new OpenApiContact { Name = "Xinh Nguyen", Email = "nguyentrucxjnh@gmail.com", Url = new Uri("https://nguyentrucxinh.github.io/") },
+                //        License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://github.com/nguyentrucxinh/AspNetCore-DDD/blob/master/LICENSE") }
+                //    });
+
+                //    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                //    {
+                //        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                //        Name = "Authorization",
+                //        In = ParameterLocation.Header,
+                //        Type = SecuritySchemeType.ApiKey,
+                //        Scheme = "Bearer"
+                //    });
+
+                //    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                //    {
+                //        {
+                //            new OpenApiSecurityScheme
+                //            {
+                //                Reference = new OpenApiReference
+                //                {
+                //                    Type = ReferenceType.SecurityScheme,
+                //                    Id = "Bearer"
+                //                },
+                //                Scheme = "oauth2",
+                //                Name = "Bearer",
+                //                In = ParameterLocation.Header,
+                //            },
+                //            new List<string>()
+                //            // new string[] { }
+                //        }
+                //    });
+                //    Add custom header request
+                //    c.OperationFilter<AddRequiredHeaderParameter>();
+                //});
+            }
+
+            return services;
+        }
+
+        public static IApplicationBuilder UseCustomizedSwagger(this IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseSwagger(c =>
+                {
+                    c.SerializeAsV2 = true;
+                });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Evernote API V1");
+                    c.RoutePrefix = String.Empty;
+                });
+            }
+
+            return app;
+        }
+    }
+}
